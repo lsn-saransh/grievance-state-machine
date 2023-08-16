@@ -22,11 +22,13 @@ import java.util.Map;
 public record MainController(ApplicationContext applicationContext,
                              MachineStateService machineStateService) {
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<?> executeNoOrderWorkflow(@PathVariable Integer userId) {
+    @PostMapping("/{userId}")
+    public ResponseEntity<?> executeNoOrderWorkflow(@PathVariable Integer userId,
+                                                    @RequestBody Map<String, Object> inputs) {
         NoOrderStateMachine noOrderStateMachine = applicationContext.getBean(NoOrderStateMachine.class);
         noOrderStateMachine.start();
         noOrderStateMachine.put("userId", userId);
+        inputs.forEach(noOrderStateMachine::put);
         noOrderStateMachine.executeWorkflow();
         return ResponseEntity.ok(Map.of(
                 "machineId", noOrderStateMachine.getID(),

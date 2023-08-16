@@ -21,8 +21,6 @@ public class InitialState extends State {
 
     @Override
     public void action(Context context) {
-        log.info("State change to Initial State");
-//        context.put("userId", "1234");
         context.put("nextEvent", USER_ID.name());
     }
 

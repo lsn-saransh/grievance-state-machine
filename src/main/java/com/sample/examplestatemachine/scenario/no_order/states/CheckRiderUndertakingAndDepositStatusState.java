@@ -18,16 +18,20 @@ public class CheckRiderUndertakingAndDepositStatusState extends State {
 
     @Override
     public void action(Context context) {
-
+        context.remove("nextEvent");
+        context.put("output", "Wait for 24 hours");
     }
 
     @Override
     public State transition(Context context) {
+        if (this.guard(context)) {
+            return this;
+        }
         return null;
     }
 
     @Override
     public boolean guard(Context context) {
-        return false;
+        return true;
     }
 }

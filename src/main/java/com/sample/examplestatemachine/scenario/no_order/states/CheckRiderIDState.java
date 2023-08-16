@@ -4,7 +4,7 @@ import com.sample.examplestatemachine.generic.Context;
 import com.sample.examplestatemachine.generic.State;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.sample.examplestatemachine.scenario.no_order.events.NoOrderEvents.ID_BLOCK;
+import static com.sample.examplestatemachine.scenario.no_order.events.NoOrderEvents.*;
 
 /**
  * @author Saransh Kumar
@@ -21,9 +21,14 @@ public final class CheckRiderIDState extends State {
 
     @Override
     public void action(Context context) {
-        log.info("State change to CheckRiderID State");
-        context.put("idBlock", Boolean.TRUE);
-        context.put("nextEvent", ID_BLOCK.name());
+        String idStatus = (String) context.get("idStatus");
+        if ("active".equalsIgnoreCase(idStatus)) {
+            context.put("nextEvent", ID_ACTIVE.name());
+        } else if ("inactive".equalsIgnoreCase(idStatus)) {
+            context.put("nextEvent", ID_INACTIVE.name());
+        } else if ("blocked".equalsIgnoreCase(idStatus)) {
+            context.put("nextEvent", ID_BLOCK.name());
+        }
     }
 
     @Override
@@ -36,10 +41,10 @@ public final class CheckRiderIDState extends State {
 
     @Override
     public boolean guard(Context context) {
-        if (context.contains("userId")) {
+        if (context.contains("userId") && context.contains("idStatus")) {
             return true;
         } else {
-            context.put("error", "User ID required");
+            context.put("error", "User ID and ID status are required");
             return false;
         }
     }

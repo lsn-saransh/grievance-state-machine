@@ -1,6 +1,7 @@
 package com.sample.examplestatemachine.service.impl;
 
 import com.sample.examplestatemachine.entity.MachineState;
+import com.sample.examplestatemachine.generic.ErrorState;
 import com.sample.examplestatemachine.generic.State;
 import com.sample.examplestatemachine.generic.StateMachine;
 import com.sample.examplestatemachine.repository.PersistStateMachineRepository;
@@ -29,7 +30,9 @@ public class MachineStateServiceImpl implements MachineStateService {
         if (machineState != null && StringUtils.hasText(machineState.getClazz())) {
             log.info("Class Name: {}", machineState.getClazz());
             State state = createNewInstance(machineState.getClazz());
-            createdStateMachine.setCurrentState(state);
+            if (!ErrorState.class.getSimpleName().equals(state.getID())) {
+                createdStateMachine.setCurrentState(state);
+            }
             createdStateMachine.setID(machineId);
             machineState.getContext().forEach(createdStateMachine::put);
         }

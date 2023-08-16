@@ -2,17 +2,14 @@ package com.sample.examplestatemachine.scenario.no_order.states;
 
 import com.sample.examplestatemachine.generic.Context;
 import com.sample.examplestatemachine.generic.State;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Saransh Kumar
  */
 
-@Slf4j
-public class CheckRiderZoneState extends State {
-
-    public CheckRiderZoneState() {
-        super(CheckRiderZoneState.class.getSimpleName());
+public class CheckRiderCityAndSelfCancellationState extends State {
+    public CheckRiderCityAndSelfCancellationState() {
+        super(CheckRiderCityAndSelfCancellationState.class.getSimpleName());
         this.setFinal(true);
         this.setRequireUserInput(false);
     }
@@ -20,7 +17,7 @@ public class CheckRiderZoneState extends State {
     @Override
     public void action(Context context) {
         context.remove("nextEvent");
-        context.put("output", "Move/stay near to the hotspot");
+        context.put("output", "Due to high cancellation, your ID is permanently blocked");
     }
 
     @Override
@@ -33,10 +30,11 @@ public class CheckRiderZoneState extends State {
 
     @Override
     public boolean guard(Context context) {
-        if (context.contains("idStatus") && "active".equals(context.get("idStatus"))) {
-            return true;
+        if (context.contains("selfCancellation")) {
+            double selfCancellation = (Double) context.get("selfCancellation");
+            return selfCancellation >= 2.0;
         } else {
-            context.put("error", "Required id to be active");
+            context.put("error", "Self cancellation percentage must be equal to or greater than 2%");
             return false;
         }
     }

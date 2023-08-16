@@ -38,6 +38,10 @@ public final class NoOrderStateMachine extends StateMachine {
         CheckRiderZoneState checkRiderZoneState = new CheckRiderZoneState();
         CheckCityState checkCityState = new CheckCityState();
         CheckReasonForIdBlockState checkReasonForIdBlockState = new CheckReasonForIdBlockState();
+        CheckRiderUndertakingAndDepositStatusState checkRiderUndertakingAndDepositStatusState =
+                new CheckRiderUndertakingAndDepositStatusState();
+        CheckRiderCityAndSelfCancellationState checkRiderCityAndSelfCancellationState =
+                new CheckRiderCityAndSelfCancellationState();
         ErrorState errorState = new ErrorState();
 
         states.put(InitialState.class.getSimpleName(), initialState);
@@ -45,12 +49,19 @@ public final class NoOrderStateMachine extends StateMachine {
         states.put(CheckRiderZoneState.class.getSimpleName(), checkRiderZoneState);
         states.put(CheckCityState.class.getSimpleName(), checkCityState);
         states.put(CheckReasonForIdBlockState.class.getSimpleName(), checkReasonForIdBlockState);
+        states.put(CheckRiderUndertakingAndDepositStatusState.class.getSimpleName(),
+                checkRiderUndertakingAndDepositStatusState);
+        states.put(CheckRiderCityAndSelfCancellationState.class.getSimpleName(),
+                checkRiderCityAndSelfCancellationState);
         states.put(ErrorState.class.getSimpleName(), errorState);
 
         transitions.put(USER_ID, List.of(initialState, checkRiderIDState));
         transitions.put(ID_ACTIVE, List.of(checkRiderIDState, checkRiderZoneState));
         transitions.put(ID_INACTIVE, List.of(checkRiderIDState, checkCityState));
         transitions.put(ID_BLOCK, List.of(checkRiderIDState, checkReasonForIdBlockState));
+        transitions.put(REST_OF_INDIA, List.of(checkCityState, checkRiderUndertakingAndDepositStatusState));
+        transitions.put(MISSED_ORDER, List.of(checkReasonForIdBlockState,
+                checkRiderCityAndSelfCancellationState));
 
         stateChangeListener = new StateChangeListenerImpl();
     }
@@ -104,8 +115,8 @@ public final class NoOrderStateMachine extends StateMachine {
                     currentState.isFinal() || currentState.getRequireUserInput()) {
                 return;
             }
-            if (context.contains("nextEvent") && context.get("nextEvent") != null) {
-                Event event =  events.get(context.get("nextEvent"));
+            if (context.contains("nextEvent")) {
+                Event event =  events.get((String) context.get("nextEvent"));
                 sendEvent(event);
             } else {
                 sendEvent(ERROR);
